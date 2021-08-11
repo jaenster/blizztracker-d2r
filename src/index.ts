@@ -246,7 +246,7 @@ const persistData = persist<StoredData>({
 
 const settings = persist({
     webhooks: [] as string[],
-}, './tracking-data.json')
+}, './settings.json')
 
 async function readTopic(id: number) {
     const {data} = await axios(`https://us.forums.blizzard.com/en/d3/t/${id}.json?forceLoad=true`);
@@ -267,15 +267,12 @@ async function readTopic(id: number) {
         if (postData.post_stream.posts) allRealPostsOfTopic.push(...postData.post_stream.posts);
     }
 
-    // Fetch the special posts
     if (data.tracked_posts) {
-        const specialPosts = data
-            .tracked_posts
+        const specialPosts = data.tracked_posts
             // filter out posts that we already had
             .filter(el => !persistData.topics.find(per => per.id === id && per.post_number === el.post_number))
             // get those posts
             .map(el => allRealPostsOfTopic.find(post => post.post_number === el.post_number) as Blizzard.Post)
-
 
         for (const post of specialPosts) {
             await spamDiscordFromPost(post);
