@@ -253,6 +253,12 @@ async function readTopic(id: number) {
     const num = 20;
     const chunks = Math.floor(data.post_stream.stream.length / num) + 1;
 
+    // Blizzards forums are pretty stupid. I could simply get only the blue posts of data.tracked_posts as those are the blue posts
+    // however, the order of the post number is not in order after they deleted someones post
+    // so all posts needs to be fetched, and see which post number is the actual post number mentioned in tracked_post
+    // as simply:
+    /*  data.tracked_posts.map(el => data.post_stream.stream[el.post_number-1]); */
+    // can have the wrong offset if they deleted a post
     const allRealPostsOfTopic = Array.from(data.post_stream.posts) as Blizzard.Post[];
     for (let i = 1; i < chunks; i++) {
         const postIds = data.post_stream.stream.slice(i * num, (i * num) + num);
@@ -292,15 +298,6 @@ async function getLatest() {
 
     for (let i = 0; i < topicsWithBluePosts.length; i++) {
         const currentTopic = topicsWithBluePosts[i];
-        const parsedTopic = persistData.topics.find(({id}) => id === currentTopic.id);
-        if (parsedTopic) {
-
-        } else {
-            console.log('found a new topic with this data');
-            // store that we parsed this specific topic
-            // persistData.topics.push(currenTopic);
-        }
-
         await readTopic(currentTopic.id);
     }
 }
