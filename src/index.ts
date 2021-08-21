@@ -282,11 +282,11 @@ async function readTopic(id: number) {
     }
 }
 
-async function getLatest() {
+async function getLatest(url) {
     const {
         data,
         status
-    } = await axios.get<Blizzard.Latest>('https://us.forums.blizzard.com/en/d3/c/d2r/d2r-general-discussion/49/l/latest.json?ascending=false')
+    } = await axios.get<Blizzard.Latest>(url)
     if (status !== 200) {
         console.error('Failed to fetch data');
     }
@@ -350,6 +350,11 @@ async function spamDiscordFromPost(post: Blizzard.Post) {
 }
 
 (async function doIt() {
-    await getLatest()
-    setTimeout(doIt, 1000 * 60 * 15);
+    [
+        'https://us.forums.blizzard.com/en/d3/c/d2r/d2r-general-discussion/49/l/latest.json?ascending=false',
+        'https://us.forums.blizzard.com/en/d3/c/d2r-beta/34/l/latest.json?ascending=false',
+        'https://us.forums.blizzard.com/en/d3/c/d2/33/l/latest.json?ascending=false'
+    ].map(el => getLatest(el));
+
+    setTimeout(doIt, 1000 * 60 * 2);
 })();
